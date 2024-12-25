@@ -30,6 +30,27 @@ private:
     }
   }
 
+  std::string extractArchive(const std::string &archivePath) const {
+    std::string extractFolder =
+        archivePath.substr(0, archivePath.find_last_of('.')) + "_extracted";
+
+    if (!fs::exists(extractFolder)) {
+      fs::create_directory(extractFolder);
+    }
+
+    std::string command = "7za x -o\"" + extractFolder + "\" \"" + archivePath + "\"";
+    std::cout << "Running extraction command: " << command << "\n";
+
+    int result = system(command.c_str());
+    if (result != 0) {
+      std::cerr << "Error: Extraction failed with code " << result << ".\n";
+      return "";
+    }
+
+    std::cout << "Extraction successful. Files extracted to: " << extractFolder << "\n";
+    return extractFolder;
+  }
+
 public:
   Patcher() = default;
 
@@ -37,7 +58,6 @@ public:
     std::string backupPath =
         archivePath.substr(0, archivePath.find_last_of('.')) + "-original.exe";
 
-    // Check if the backup file exists, if it exists rename it to the original, file overwriting the patch
     if (fs::exists(backupPath)) {
       fs::rename(backupPath, archivePath);
       std::cout << "Revert successful.\n";
@@ -48,7 +68,18 @@ public:
 
   void updateContents(const std::string &archivePath,
                       const std::string &modFolderPath) {
-    if (!fs::exists(modFolderPath) || !fs::is_directory(modFolderPath)) {
+    std::string actualModFolderPath = modFolderPath;
+
+    if (fs::is_regular_file(modFolderPath)) {
+      std::string extractedFolder = extractArchive(modFolderPath);
+      if (extractedFolder.empty()) {
+        std::cerr << "Error: Unable to extract mod archive.\n";
+        return;
+      }
+      actualModFolderPath = extractedFolder;
+    }
+
+    if (!fs::exists(actualModFolderPath) || !fs::is_directory(actualModFolderPath)) {
       std::cerr << "Error: Mod folder does not exist or is not a directory.\n";
       return;
     }
@@ -57,16 +88,16 @@ public:
 
     std::string command = "7za u \"" + archivePath + "\"";
 
-    for (const auto &entry : fs::recursive_directory_iterator(modFolderPath)) {
+    for (const auto &entry : fs::recursive_directory_iterator(actualModFolderPath)) {
       if (fs::is_regular_file(entry)) {
         std::string relativePath =
-            fs::relative(entry.path(), modFolderPath).string();
+            fs::relative(entry.path(), actualModFolderPath).string();
         command += " \"" + relativePath + "\"";
       }
     }
 
     std::string originalPath = fs::current_path().string();
-    fs::current_path(modFolderPath);
+    fs::current_path(actualModFolderPath);
 
     std::cout << "Running command: " << command << "\n";
     int result = system(command.c_str());
@@ -80,5 +111,4 @@ public:
     }
   }
 };
-
 
