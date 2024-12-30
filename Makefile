@@ -1,4 +1,4 @@
-BIN=bpatchy
+BIN=patchy
 FLAGS= -std=c++20 -lclicky -lzip
 
 all:
