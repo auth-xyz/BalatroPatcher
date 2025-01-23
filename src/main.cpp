@@ -8,23 +8,22 @@
 std::string PATHSRC = std::string(getenv("HOME")) + "/.local/share/Steam/steamapps/common/Balatro/Balatro.exe";
 
 int main(int argc, char* argv[]) {
-  clicky cli;
+  clicky cli("{program} (-m)[Path to modded files]");
   Patcher patch;
 
-  cli.add_argument("patch", "m", false, "Path to the folder containing the patch");
-  cli.add_argument("source", "s", false, "Path to the source executable");
-  cli.add_flag("revert", "r", false, "Reverts the executable to the original Balatro");
-
+  cli.add_argument("patch", "m", "Path to modded content", true);
+  cli.add_argument("source", "s", "Path to the source executable", false);
+  cli.add_option("revert", "r", "Reverts the executable to the original Balatro", false);
   cli.parse(argc, argv);
 
   try {
-    if (!cli.flag("revert")) {
-      std::string patchPath = cli.argument("patch");
+    if (!cli.get_option("revert")) {
+      std::string patchPath = cli.has_argument("patch") ? cli.get_argument("patch") : std::string("patch");
       patch.updateContents(PATHSRC, patchPath);
 
 
-      if (!cli.argument("source").empty()) {
-        patch.updateContents(cli.argument("source"), patchPath);
+      if (!cli.has_argument("source")) {
+        patch.updateContents(cli.get_argument("source"), patchPath);
       }
     }
 
