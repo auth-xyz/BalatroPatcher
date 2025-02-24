@@ -1,8 +1,9 @@
 BIN=patchy
-FLAGS= -std=c++20 -lclicky -lzip
+FLAGS=-std=c++20
+LDFLAGS=-Wl,-Bstatic -lclicky -Wl,-Bdynamic -lzip
 
 all:
-	g++ $(FLAGS) src/main.cpp -o $(BIN)
+	g++ $(FLAGS) src/main.cpp -o $(BIN) $(LDFLAGS)
 
 clean:
 	rm -f $(BIN)
@@ -13,4 +14,5 @@ install:
 remove:
 	rm -f /usr/local/bin/$(BIN)
 
-.PHONY: all clean
+.PHONY: all clean install remove
+

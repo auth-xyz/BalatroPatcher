@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   cli.parse(argc, argv);
 
   try {
-    if (!cli.get_option("revert")) {
+    if (!cli.has_option("revert")) {
       std::string patchPath = cli.has_argument("patch")
                                   ? cli.get_argument("patch")
                                   : std::string("patch");
