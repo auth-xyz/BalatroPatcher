@@ -17,12 +17,12 @@ By default, patchy will look for "Balatro.exe" inside the ~/.local/share/Steam/s
 IF your Balatro installation is not there (for whatever reason, if you pirated it I will be very angry), you can
 give patchy the --source flag, and it will use that path instead.
 
-bpatchy --mod path/to/mod
+./patchy --patch /path/to/patch_folder
 
 This will patch the "Balatro.exe" to have the contents of the mod folder.
 Now of course, if you want to play your game with no modded content, you can use:
 
-bpatchy --revert
+./patchy --revert
 
 And your Balatro.exe will be clean!
 
